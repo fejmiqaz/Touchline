@@ -38,6 +38,7 @@ data/
 *.log
 
 google-oauth-secrets.json
+google-oauth-secrets-local.json
 backups/
 *.dump
 *.gpg
