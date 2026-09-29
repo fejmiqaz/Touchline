@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touchline · Check your request</title>
+<link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<main class="login-card">
+<span class="eyebrow">TOUCHLINE</span>
+<h1>Let’s check that.</h1>
+<p role="alert" th:text="${message}">
+</p>
+<p>Use your browser’s Back button to return to your form.</p>
+<a class="button" th:href="@{/}">Coach dashboard</a>
+</main>
+</body>
+</html>
+

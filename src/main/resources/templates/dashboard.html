@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touchline · Coach dashboard</title>
+<link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: header}">
+</header>
+<main>
+<section th:replace="~{fragments :: notifications}">
+</section>
+<div class="page-heading">
+<div>
+<span class="eyebrow" th:text="${#temporals.format(today,'EEEE, d MMMM yyyy')}">
+</span>
+<h1>Ready for training.</h1>
+<p>Plan tomorrow. See who shows up today.</p>
+</div>
+<a class="button" href="#schedule">+ Schedule training</a>
+</div>
+<section>
+<div class="section-heading">
+<h2>On the pitch today</h2>
+<span class="badge" th:text="|${todaySessions.size()} sessions|">
+</span>
+</div>
+<div class="cards">
+<a class="session-card" th:each="training : ${todaySessions}" th:href="@{/sessions/{id}(id=${training.id})}">
+<span class="eyebrow" th:text="|${training.startTime} – ${training.endTime}|">
+</span>
+<h3 th:text="${training.generation.name}">
+</h3>
+<p th:text="${training.location}">
+</p>
+<span class="badge" th:text="${training.recorded ? 'Attendance saved · Review →' : 'Take attendance →'}">
+</span>
+</a>
+<p class="empty" th:if="${todaySessions.isEmpty()}">No training scheduled today. Create tomorrow’s session below.</p>
+</div>
+</section>
+<div class="two-columns">
+<section class="panel">
+<h2>Your generations</h2>
+<p class="muted">Keep each generation’s roster together over time.</p>
+<div class="generation-list">
+<a th:each="generation : ${generations}" th:href="@{/generations/{id}(id=${generation.id})}">
+<b th:text="${generation.name}">
+</b>
+<span th:text="|Born ${generation.birthYear} →|">
+</span>
+</a>
+</div>
+<details>
+<summary>+ Create generation</summary>
+<form th:action="@{/generations}" method="post" class="stack">
+<label>Generation name<input name="name" placeholder="e.g. U15 · Academy" maxlength="100" required>
+</label>
+<label>Birth year<input name="birthYear" type="number" min="1900" th:max="${today.year}" placeholder="2012" required>
+</label>
+<button>Create generation</button>
+</form>
+</details>
+</section>
+<section id="schedule" class="panel">
+<h2>Tomorrow’s training</h2>
+<p class="muted">Create each session manually, one day before training.</p>
+<p th:if="${generations.isEmpty()}" class="empty">Create a generation first to schedule training.</p>
+<form th:unless="${generations.isEmpty()}" th:action="@{/sessions}" method="post" class="stack">
+<label>Generation<select name="generationId" required>
+<option th:each="g : ${generations}" th:value="${g.id}" th:text="${g.name}">
+</option>
+</select>
+</label>
+<label>Training day <span th:text="${#temporals.format(tomorrow,'EEEE')}">
+</span>
+<input type="date" name="date" th:value="${tomorrow}" th:min="${tomorrow}" th:max="${tomorrow}" required>
+</label>
+<div class="form-row">
+<label>Starts<input type="time" name="start" required>
+</label>
+<label>Ends<input type="time" name="end" required>
+</label>
+</div>
+<label>Pitch / location<input name="location" maxlength="150" placeholder="Main pitch" required>
+</label>
+<label>Session notes <small>(optional)</small>
+<textarea name="notes" maxlength="500" placeholder="What are we working on?">
+</textarea>
+</label>
+<button>Schedule training</button>
+</form>
+</section>
+</div>
+<section class="panel">
+<h2>Training schedule & history</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th>Time</th>
+<th>Generation</th>
+<th>Status</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="s : ${sessions}">
+<td th:text="${#temporals.format(s.trainingDate,'EEEE, d MMM yyyy')}">
+</td>
+<td th:text="|${s.startTime} – ${s.endTime}|">
+</td>
+<td th:text="${s.generation.name}">
+</td>
+<td>
+<span class="badge" th:text="${s.cancelled ? 'Cancelled' : (s.recorded ? 'Saved' : (s.trainingDate.isAfter(today) ? 'Upcoming' : 'Attendance pending'))}">
+</span>
+</td>
+<td>
+<a th:href="@{/sessions/{id}(id=${s.id})}">Open →</a>
+</td>
+</tr>
+<tr th:if="${sessions.isEmpty()}">
+<td colspan="5" class="empty">Your scheduled sessions will appear here, organized by day.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="panel">
+<h2>Attendance overview</h2>
+<p class="muted">All recorded sessions, across each generation’s lifetime. Alerts begin at 6 absences.</p>
+<div th:replace="~{fragments :: statistics}">
+</div>
+</section>
+</main>
+<footer>TOUCHLINE · Show up. Put the work in.</footer>
+</body>
+</html>
+
+

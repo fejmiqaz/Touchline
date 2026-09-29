@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Touchline · Player</title>
+    <link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <section th:replace="~{fragments :: notifications}"></section>
+    <a th:href="@{/generations/{id}(id=${player.generation.id})}" th:text="|← ${player.generation.name}|"></a>
+    <div class="page-heading"><div>
+        <span class="eyebrow" th:text="|SHIRT #${player.shirtNumber}|"></span>
+        <h1 th:text="${player.name}"></h1>
+        <p th:text="|Joined ${player.joinedOn}|"></p>
+    </div></div>
+    <section class="panel">
+        <h2>Attendance summary</h2>
+        <div th:replace="~{fragments :: statistics}"></div>
+    </section>
+    <section class="panel">
+        <h2>Training history</h2>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Time</th><th>Attendance</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="record : ${history}">
+                <td th:text="${record.session.trainingDate}"></td>
+                <td th:text="${record.session.startTime}"></td>
+                <td th:text="${record.present ? 'Present' : 'Absent'}"></td>
+                <td><a th:href="@{/sessions/{id}(id=${record.session.id})}">Review / edit attendance →</a></td>
+            </tr>
+            <tr th:if="${history.isEmpty()}"><td colspan="4">No saved attendance yet.</td></tr>
+            </tbody>
+        </table></div>
+    </section>
+    <section class="panel">
+        <h2>Edit player</h2>
+        <p>Changes apply to the player’s name and shirt number throughout their history. Their generation and enrollment date stay fixed.</p>
+        <form class="stack" th:action="@{/players/{id}/edit(id=${player.id})}" method="post">
+            <label>Name<input name="name" th:value="${player.name}" maxlength="150" required></label>
+            <label>Shirt number<input name="shirtNumber" type="number" min="1" max="999" th:value="${player.shirtNumber}" required></label>
+            <button>Save player</button>
+        </form>
+    </section>
+    <section class="panel danger-zone">
+        <details><summary>Delete player</summary>
+            <p>This permanently removes the player and all their attendance records. Other players and training sessions stay in place.</p>
+            <form class="stack" th:action="@{/players/{id}/delete(id=${player.id})}" method="post">
+                <label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this player and their attendance history.</label>
+                <button class="destructive">Delete player</button>
+            </form>
+        </details>
+    </section>
+</main>
+</body>
+</html>

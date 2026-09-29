@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touchline · Coach login</title>
+<link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body class="login-body">
+<main class="login-card">
+<span class="eyebrow">TOUCHLINE / ATTENDANCE</span>
+<h1>Every player.<br>Every training.</h1>
+<p>Your generations, training schedule, and attendance in one coach workspace.</p>
+<a th:if="${configured}" class="button" th:href="@{/oauth2/authorization/google}">Continue with Google →</a>
+<p th:unless="${configured}" class="alert-bar">Google login needs setup. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, then restart the application.</p>
+<p th:if="${param.error}" class="alert-bar" role="alert">Sign-in could not be completed. Use a verified Google account approved for this application. Contact the application owner if you need access.</p>
+<p th:if="${param.logout}" class="success">You have logged out.</p>
+<small>For coaches. Players are managed in your generation roster.</small>
+</main>
+</body>
+</html>
+

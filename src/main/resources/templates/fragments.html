@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header">
+<a class="brand" th:href="@{/}">
+<span class="brand-icon">●</span> Touchline <small>COACH WORKSPACE</small>
+</a>
+<div class="account">
+<span th:text="${coachName}">Coach</span>
+<form th:action="@{/logout}" method="post">
+<button class="quiet" type="submit">Log out</button>
+</form>
+</div>
+</header>
+<section th:fragment="notifications" class="notifications" aria-label="Notifications">
+ <p class="success" role="status" th:if="${success}" th:text="${success}">
+</p>
+ <details th:if="${alerts != null and !alerts.isEmpty()}" class="alert-bar">
+<summary th:text="|${alerts.size()} attendance alert(s) · Players with more than 5 absences|">Attendance alerts</summary>
+<ul>
+<li th:each="alert : ${alerts}">
+<a th:href="@{/generations/{id}(id=${alert.player.generation.id})}" th:text="|${alert.player.name} · ${alert.player.generation.name}|">
+</a>
+<span th:text="| — ${alert.absent} absences (${alert.percentage()}%)|">
+</span>
+</li>
+</ul>
+</details>
+</section>
+<div th:fragment="statistics" class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Player</th>
+<th>Generation</th>
+<th>Sessions</th>
+<th>Absences</th>
+<th>Absent %</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="row : ${summaries}">
+<td>
+<a th:href="@{/players/{id}(id=${row.player.id})}" th:text="${row.player.name}"></a>
+<small th:text="|#${row.player.shirtNumber}|">
+</small>
+</td>
+<td th:text="${row.player.generation.name}">
+</td>
+<td th:text="${row.total}">
+</td>
+<td th:text="${row.absent}">
+</td>
+<td th:text="${row.total == 0 ? '—' : row.percentage() + '%'}">
+</td>
+<td>
+<span class="badge" th:classappend="${row.warning()} ? 'danger'" th:text="${row.warning() ? 'Needs attention' : (row.total == 0 ? 'No records' : 'Within limit')}">
+</span>
+</td>
+</tr>
+<tr th:if="${summaries.isEmpty()}">
+<td colspan="6" class="empty">Add players to start tracking attendance.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>
+

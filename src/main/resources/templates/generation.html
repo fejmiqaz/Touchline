@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touchline · Generation</title>
+<link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: header}">
+</header>
+<main>
+<section th:replace="~{fragments :: notifications}">
+</section>
+<a th:href="@{/}">← Coach dashboard</a>
+<div class="page-heading">
+<div>
+<span class="eyebrow" th:text="|BORN ${generation.birthYear}|">
+</span>
+<h1 th:text="${generation.name}">
+</h1>
+<p>One generation. One roster. Every session accounted for.</p>
+</div>
+</div>
+<div class="two-columns roster-layout">
+<section class="panel">
+<h2>Players & attendance</h2>
+<p class="muted">Absences accumulate across all saved training sessions.</p>
+<div th:replace="~{fragments :: statistics}">
+</div>
+</section>
+<section class="panel">
+<h2>Add player</h2>
+<form class="stack" th:action="@{/generations/{id}/players(id=${generation.id})}" method="post">
+<label>Player name<input name="name" maxlength="150" required>
+</label>
+<label>Shirt number<input name="shirtNumber" type="number" min="1" max="999" required>
+</label>
+<p class="muted">New players join from today. Previously saved attendance stays unchanged.</p>
+<button>Add to generation</button>
+</form>
+</section>
+</div>
+<section class="panel">
+<details><summary>Edit generation</summary>
+<form class="stack" th:action="@{/generations/{id}/edit(id=${generation.id})}" method="post">
+<label>Name<input name="name" th:value="${generation.name}" maxlength="100" required></label>
+<label>Birth year<input name="birthYear" type="number" min="1900" th:max="${today.year}" th:value="${generation.birthYear}" required></label>
+<button>Save generation</button>
+</form></details>
+</section>
+<section class="panel danger-zone">
+<details><summary>Delete generation</summary>
+<p>This permanently deletes this generation, all its players, training sessions and attendance records.</p>
+<form class="stack" th:action="@{/generations/{id}/delete(id=${generation.id})}" method="post">
+<label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this generation and all its records.</label>
+<button class="destructive">Delete generation</button>
+</form></details>
+</section>
+</main>
+</body>
+</html>
+

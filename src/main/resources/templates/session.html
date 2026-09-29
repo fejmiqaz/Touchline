@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touchline · Training attendance</title>
+<link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: header}">
+</header>
+<main th:with="training=${roll.session},locked=${roll.session.cancelled or roll.session.trainingDate.isAfter(today)}">
+<section th:replace="~{fragments :: notifications}">
+</section>
+<a th:href="@{/}">← Coach dashboard</a>
+<div class="page-heading">
+<div>
+<span class="eyebrow" th:text="${#temporals.format(training.trainingDate,'EEEE, d MMMM yyyy')}">
+</span>
+<h1 th:text="${training.generation.name}">
+</h1>
+<p th:text="|${training.startTime} – ${training.endTime} · ${training.location}|">
+</p>
+<p th:if="${!training.notes.isBlank()}" th:text="${training.notes}">
+</p>
+</div>
+<span class="badge" th:text="${training.cancelled ? 'Cancelled' : (training.recorded ? 'Attendance saved' : 'Attendance not yet saved')}">
+</span>
+</div>
+<p class="alert-bar" th:if="${training.cancelled}">This session is cancelled and does not count toward attendance.</p>
+<p class="notice" th:if="${!training.cancelled and training.trainingDate.isAfter(today)}">Attendance opens on the training date. Your roster preview is below.</p>
+<section class="panel">
+<h2>Who’s here?</h2>
+<p>Click a player’s name to mark them present. Unselected players count as absent when you save.</p>
+<p th:if="${roll.players.isEmpty()}" class="empty">This generation has no eligible players. <a th:href="@{/generations/{id}(id=${training.generation.id})}">Add players →</a>
+</p>
+<form th:action="@{/sessions/{id}/attendance(id=${training.id})}" method="post">
+<input type="hidden" name="revision" th:value="${training.revision}">
+<fieldset th:disabled="${locked}" class="player-grid">
+<legend class="sr-only">Players present at training</legend>
+<label class="player-card" th:each="player : ${roll.players}">
+<input type="checkbox" name="present" th:value="${player.id}" th:checked="${roll.present.contains(player.id)}">
+<span class="shirt" th:text="|#${player.shirtNumber}|">
+</span>
+<strong th:text="${player.name}">
+</strong>
+<span class="player-state">
+</span>
+</label>
+</fieldset>
+<div class="save-bar" th:unless="${locked or roll.players.isEmpty()}">
+<span class="muted">Only saved attendance affects totals and alerts.</span>
+<button th:text="${training.recorded ? 'Update attendance' : 'Save attendance'}">
+</button>
+</div>
+</form>
+</section>
+<form th:if="${!training.recorded and !training.cancelled}" th:action="@{/sessions/{id}/cancel(id=${training.id})}" method="post" class="cancel-form">
+<button class="quiet" type="submit">Cancel this training session</button>
+<small>Cancelled sessions never count as absences.</small>
+</form>
+<section class="panel" style="margin-top:28px">
+<details><summary>Edit training session</summary>
+<p>The generation stays fixed. Recorded training dates cannot change; unrecorded sessions can keep their date or move to tomorrow.</p>
+<form class="stack" th:action="@{/sessions/{id}/edit(id=${training.id})}" method="post">
+<input type="hidden" name="revision" th:value="${training.revision}">
+<label>Date<input name="date" type="date" th:value="${training.trainingDate}" th:readonly="${training.recorded}" required></label>
+<div class="form-row">
+<label>Starts<input name="start" type="time" th:value="${training.startTime}" required></label>
+<label>Ends<input name="end" type="time" th:value="${training.endTime}" required></label>
+</div>
+<label>Pitch / location<input name="location" maxlength="150" th:value="${training.location}" required></label>
+<label>Notes<textarea name="notes" maxlength="500" th:text="${training.notes}"></textarea></label>
+<button>Save training session</button>
+</form></details>
+</section>
+<section class="panel danger-zone" th:if="${training.recorded}">
+<details><summary>Delete attendance sheet</summary>
+<p>Remove all attendance marks for this session and return it to pending. Absences, percentages and notifications update immediately. You can take attendance again.</p>
+<form class="stack" th:action="@{/sessions/{id}/attendance/delete(id=${training.id})}" method="post">
+<input type="hidden" name="revision" th:value="${training.revision}">
+<label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this attendance sheet.</label>
+<button class="destructive">Delete attendance</button>
+</form></details>
+</section>
+<section class="panel danger-zone">
+<details><summary>Delete training session</summary>
+<p>This permanently removes this session and all attendance recorded for it. Totals and alerts are recalculated.</p>
+<form class="stack" th:action="@{/sessions/{id}/delete(id=${training.id})}" method="post">
+<input type="hidden" name="revision" th:value="${training.revision}">
+<label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this session and its attendance.</label>
+<button class="destructive">Delete training session</button>
+</form></details>
+</section>
+</main>
+</body>
+</html>
+
+
