@@ -1,0 +1,50 @@
+name: Daily database backup
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PGHOST: ${{ secrets.BACKUP_DATABASE_HOST }}
+      PGDATABASE: ${{ vars.BACKUP_DATABASE_NAME || 'neondb' }}
+      PGUSER: ${{ secrets.DATABASE_USERNAME }}
+      PGPASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      PGSSLMODE: require
+      PGCONNECT_TIMEOUT: '30'
+      POSTGRES_IMAGE: postgres:18
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      SMTP_HOST: ${{ vars.SMTP_HOST || 'smtp.gmail.com' }}
+      SMTP_PORT: ${{ vars.SMTP_PORT || '465' }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      BACKUP_EMAIL_TO: ${{ secrets.BACKUP_EMAIL_TO }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run backup script tests
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - name: Export, validate and encrypt database
+        run: python3 scripts/database_backup.py backup
+      - name: Retain encrypted backup for 30 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-database-backup-${{ github.run_id }}-${{ github.run_attempt }}
+          path: backups/*.gpg
+          if-no-files-found: error
+          retention-days: 30
+      - name: Email encrypted backup
+        run: python3 scripts/database_backup.py send
+      - name: Notify about failure
+        if: failure()
+        run: python3 scripts/database_backup.py failure

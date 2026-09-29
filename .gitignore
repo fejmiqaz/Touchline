@@ -38,3 +38,7 @@ data/
 *.log
 
 google-oauth-secrets.json
+backups/
+*.dump
+*.gpg
+__pycache__/

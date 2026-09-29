@@ -82,7 +82,11 @@ The importer is opt-in and skips sample generations already present, so rerunnin
 
 Stop the regular app first when using the local H2 file. After import, restart normally from IntelliJ with your Google credentials. The importer does not bypass login or run during ordinary startup. Sample dates are relative to the import date and are preserved on subsequent runs.
 
-## Tests
+## Daily email backups
+
+See [database backup setup and restore instructions](docs/database-backups.md) to enable a daily encrypted Neon export emailed through SMTP. The GitHub Actions workflow requires repository secrets and a push to the default branch before it can run. It also retains encrypted artifacts for 30 days. No database credentials are stored in the repository.
+
+## Running tests
 
 ```powershell
 .\mvnw.cmd test
