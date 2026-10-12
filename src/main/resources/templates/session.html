@@ -9,10 +9,11 @@
 <body>
 <header th:replace="~{fragments :: header}">
 </header>
+<nav th:replace="~{fragments :: navigation}"></nav>
 <main th:with="training=${roll.session},locked=${roll.session.cancelled or roll.session.trainingDate.isAfter(today)}">
 <section th:replace="~{fragments :: notifications}">
 </section>
-<a th:href="@{/}">← Coach dashboard</a>
+<a th:href="@{/training}">← Training</a>
 <div class="page-heading">
 <div>
 <span class="eyebrow" th:text="${#temporals.format(training.trainingDate,'EEEE, d MMMM yyyy')}">
@@ -95,5 +96,3 @@
 </main>
 </body>
 </html>
-
-

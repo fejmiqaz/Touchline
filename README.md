@@ -4,7 +4,7 @@
 
 ### Every player. Every training. Every attendance record.
 
-A football attendance workspace for coaches to organize generations, plan training, and see who is showing up.
+A football workspace for coaches to organize generations, plan training, track attendance, and manage monthly memberships in MKD.
 
 **Java 17 · Spring Boot 4.1.1 · Thymeleaf · PostgreSQL · Google Sign-In**
 
@@ -34,8 +34,29 @@ Players are organized into **generations**—groups identified by a name and bir
 | **Attendance in a few clicks** | Select a player’s name/card to mark them present. Save the sheet to record attendance. |
 | **Absence tracking** | View saved-session counts, absence totals, rounded absence percentages, and alerts for players with six or more absences. |
 | **Corrections and history** | Reopen saved attendance to make corrections, or delete a sheet to return the session to pending. |
+| **Monthly memberships** | Record each player's monthly fee in MKD, update the total paid, and review unpaid, partial, and paid balances. |
 | **Restricted Google login** | Only verified Google email addresses in the configured allowlist can sign in. |
 | **Daily backup workflow** | Export Neon, encrypt the backup, email it, and retain an encrypted GitHub artifact. Requires separate setup. |
+
+## Your workspace
+
+Navigation below the header keeps each feature on its own page:
+
+| Page | Purpose |
+| --- | --- |
+| **Overview** | Today's training, roster totals, absence alerts, and shortcuts. |
+| **Training** | Schedule tomorrow's training and manage existing sessions. |
+| **Generations** | Manage generations, player rosters, and player profiles. |
+| **Attendance** | Open eligible training sheets and review attendance summaries. |
+| **Memberships** | Select a month, manage player fees, and view totals due, received, and outstanding in MKD. |
+
+### Monthly memberships
+
+Create one membership record per player per month, specifying the amount due. Record the **total paid so far**, the latest payment date, and optional notes. For example, a fee of 1,500 MKD with 500 MKD received shows a partial payment and a 1,000 MKD balance. When another 500 MKD arrives, update the total paid to 1,000 MKD.
+
+Fees are created manually; this feature records payments received outside the application. It does not collect payments or automatically create recurring charges. Each record can be viewed, corrected, or deleted with confirmation. A player's profile includes their membership history. Duplicate months, overpayments, invalid amounts, and stale edits are rejected. Membership records are private to the owning coach.
+
+The additive Flyway migration `V3__membership_fees.sql` creates the membership table automatically when the updated application starts. Existing attendance records remain intact. Test the migration against the development database before deploying to production.
 
 ## From planning to attendance
 
@@ -66,9 +87,9 @@ Open a generation or training session to find its edit and delete controls. Clic
 | Edit a session | Updates time, pitch, and notes. Unrecorded sessions can keep their date or move to tomorrow; recorded dates and the generation stay fixed. |
 | Cancel a session | Allowed before attendance is saved. The session stays visible without counting absences. |
 | Delete an attendance sheet | Removes its marks and returns the session to pending. You can take attendance again. |
-| Delete a player | Removes the player and their attendance history. Other players and sessions remain. |
+| Delete a player | Removes the player, their attendance history, and membership records. Other players and sessions remain. |
 | Delete a session | Removes the session and its attendance records. |
-| Delete a generation | Removes the generation, its players, sessions, and attendance. |
+| Delete a generation | Removes the generation, its players, sessions, attendance, and membership records. |
 
 Delete forms require confirmation. Deletions are permanent, and affected totals and alerts are recalculated.
 

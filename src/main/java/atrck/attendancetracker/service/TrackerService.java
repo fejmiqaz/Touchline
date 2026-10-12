@@ -21,6 +21,7 @@ public class TrackerService {
     private final PlayerRepository players;
     private final TrainingSessionRepository sessions;
     private final PlayerAttendanceRepository attendance;
+    private final MembershipFeeRepository membershipFees;
     private final Clock clock;
 
     public LocalDate today() {
@@ -142,6 +143,8 @@ public class TrackerService {
                 .forEach(sessionId -> sessions.lockOwned(sessionId, owner).orElseThrow(TrackerService::missing).touch());
         attendance.deleteByPlayerId(id);
         attendance.flush();
+        membershipFees.deleteByPlayerId(id);
+        membershipFees.flush();
         players.delete(player);
         return generationId;
     }
@@ -153,6 +156,8 @@ public class TrackerService {
                 .sorted(Comparator.comparing(TrainingSession::getId)).toList();
         for (var training : trainingSessions) deleteSession(owner, training.getId(), training.getRevision(), true);
         sessions.flush();
+        membershipFees.deleteByPlayerGenerationId(id);
+        membershipFees.flush();
         players.deleteAll(players.findByGenerationIdOrderByNameAsc(id));
         players.flush();
         generations.delete(generation);

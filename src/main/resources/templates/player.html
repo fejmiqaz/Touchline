@@ -8,6 +8,7 @@
 </head>
 <body>
 <header th:replace="~{fragments :: header}"></header>
+<nav th:replace="~{fragments :: navigation}"></nav>
 <main>
     <section th:replace="~{fragments :: notifications}"></section>
     <a th:href="@{/generations/{id}(id=${player.generation.id})}" th:text="|← ${player.generation.name}|"></a>
@@ -36,6 +37,14 @@
         </table></div>
     </section>
     <section class="panel">
+        <h2>Membership payments</h2>
+        <p><a th:href="@{/memberships}">Manage monthly fees →</a></p>
+        <div class="table-wrap"><table><thead><tr><th>Month</th><th>Due · MKD</th><th>Paid · MKD</th><th>Balance · MKD</th><th>Status</th></tr></thead><tbody>
+        <tr th:each="fee : ${memberships}"><td><a th:href="@{/memberships/{id}(id=${fee.id})}" th:text="${#temporals.format(fee.feeMonth,'MMMM yyyy')}"></a></td><td th:text="${#numbers.formatDecimal(fee.amountDue,1,2)}"></td><td th:text="${#numbers.formatDecimal(fee.amountPaid,1,2)}"></td><td th:text="${#numbers.formatDecimal(fee.balance,1,2)}"></td><td th:text="${fee.status}"></td></tr>
+        <tr th:if="${memberships.isEmpty()}"><td colspan="5">No membership fees entered yet.</td></tr>
+        </tbody></table></div>
+    </section>
+    <section class="panel">
         <h2>Edit player</h2>
         <p>Changes apply to the player’s name and shirt number throughout their history. Their generation and enrollment date stay fixed.</p>
         <form class="stack" th:action="@{/players/{id}/edit(id=${player.id})}" method="post">
@@ -46,9 +55,9 @@
     </section>
     <section class="panel danger-zone">
         <details><summary>Delete player</summary>
-            <p>This permanently removes the player and all their attendance records. Other players and training sessions stay in place.</p>
+            <p>This permanently removes the player and all their attendance and membership records. Other players and training sessions stay in place.</p>
             <form class="stack" th:action="@{/players/{id}/delete(id=${player.id})}" method="post">
-                <label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this player and their attendance history.</label>
+                <label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this player and their attendance and membership history.</label>
                 <button class="destructive">Delete player</button>
             </form>
         </details>

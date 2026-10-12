@@ -15,16 +15,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller @RequiredArgsConstructor
 public class TrackerController {
     private final TrackerService tracker;
+    private final atrck.attendancetracker.service.MembershipService memberships;
     @Value("${spring.security.oauth2.client.registration.google.client-id}") private String clientId;
 
-    @ModelAttribute void common(@AuthenticationPrincipal OidcUser user,Model model) {
-        model.addAttribute("today",tracker.today());
-        model.addAttribute("tomorrow",tracker.today().plusDays(1));
-        if(user!=null) {
-            model.addAttribute("coachName",user.getFullName()==null ? "Coach" : user.getFullName());
-            model.addAttribute("alerts",tracker.summaries(user.getSubject()).stream().filter(TrackerService.Summary::warning).toList());
-        }
-    }
     @GetMapping("/login") String login(Model model) { model.addAttribute("configured",!clientId.equals("unconfigured")); return "login"; }
     @GetMapping("/") String dashboard(@AuthenticationPrincipal OidcUser user,Model model) {
         var owner=user.getSubject();
@@ -34,6 +27,20 @@ public class TrackerController {
         model.addAttribute("sessions",sessions);
         model.addAttribute("summaries",tracker.summaries(owner));
         return "dashboard";
+    }
+    @GetMapping("/training") String training(@AuthenticationPrincipal OidcUser user, Model model) {
+        dashboard(user, model);
+        return "training";
+    }
+    @GetMapping("/generations") String generations(@AuthenticationPrincipal OidcUser user, Model model) {
+        model.addAttribute("generations", tracker.generations(user.getSubject()));
+        return "generations";
+    }
+    @GetMapping("/attendance") String attendancePage(@AuthenticationPrincipal OidcUser user, Model model) {
+        model.addAttribute("summaries", tracker.summaries(user.getSubject()));
+        model.addAttribute("sessions", tracker.sessions(user.getSubject()).stream()
+                .filter(s -> !s.isCancelled() && !s.getTrainingDate().isAfter(tracker.today())).toList());
+        return "attendance";
     }
     @PostMapping("/generations") String addGeneration(@AuthenticationPrincipal OidcUser user,@RequestParam String name,@RequestParam int birthYear,RedirectAttributes flash) {
         var generation=tracker.addGeneration(user.getSubject(),name,birthYear);
@@ -81,6 +88,7 @@ public class TrackerController {
     @GetMapping("/players/{id}") String player(@AuthenticationPrincipal OidcUser user, @PathVariable Long id, Model model) {
         model.addAttribute("player", tracker.player(user.getSubject(), id));
         model.addAttribute("history", tracker.playerHistory(user.getSubject(), id));
+        model.addAttribute("memberships", memberships.history(user.getSubject(), id));
         model.addAttribute("summaries", tracker.summaries(user.getSubject()).stream().filter(s -> s.player().getId().equals(id)).toList());
         return "player";
     }

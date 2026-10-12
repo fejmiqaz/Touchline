@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Touchline · Attendance</title><link rel="stylesheet" th:href="@{/app.css}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<nav th:replace="~{fragments :: navigation}"></nav>
+<main><section th:replace="~{fragments :: notifications}"></section>
+<div class="page-heading"><div><span class="eyebrow">SHOWING UP MATTERS</span><h1>Attendance.</h1><p>Take attendance, review saved sheets, and follow up on absences.</p></div></div><section class="panel">
+<h2>Attendance overview</h2>
+<p class="muted">All recorded sessions, across each generation’s lifetime. Alerts begin at 6 absences.</p>
+<div th:replace="~{fragments :: statistics}">
+</div>
+</section><section class="panel">
+<h2>Attendance sheets</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th>Time</th>
+<th>Generation</th>
+<th>Status</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="s : ${sessions}">
+<td th:text="${#temporals.format(s.trainingDate,'EEEE, d MMM yyyy')}">
+</td>
+<td th:text="|${s.startTime} – ${s.endTime}|">
+</td>
+<td th:text="${s.generation.name}">
+</td>
+<td>
+<span class="badge" th:text="${s.cancelled ? 'Cancelled' : (s.recorded ? 'Saved' : (s.trainingDate.isAfter(today) ? 'Upcoming' : 'Attendance pending'))}">
+</span>
+</td>
+<td>
+<a th:href="@{/sessions/{id}(id=${s.id})}">Take / review attendance →</a>
+</td>
+</tr>
+<tr th:if="${sessions.isEmpty()}">
+<td colspan="5" class="empty">Your scheduled sessions will appear here, organized by day.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main><footer>TOUCHLINE · Show up. Put the work in.</footer></body></html>

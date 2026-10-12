@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Touchline · Memberships</title><link rel="stylesheet" th:href="@{/app.css}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<nav th:replace="~{fragments :: navigation}"></nav>
+<main>
+<section th:replace="~{fragments :: notifications}"></section>
+<div class="page-heading"><div><span class="eyebrow">MONTHLY FEES · MKD</span><h1>Memberships.</h1><p>Know what is paid and what is still outstanding.</p></div><a class="button" href="#add-fee">+ Add monthly fee</a></div>
+<form class="month-filter" th:action="@{/memberships}" method="get"><label>Membership month<input type="month" name="month" min="2000-01" max="2100-12" th:value="${month}" required></label><button class="quiet">View month</button></form>
+<div class="metric-grid membership-metrics">
+<div class="metric"><span>Fees due</span><strong th:text="${#numbers.formatDecimal(due,1,2)}"></strong><small th:text="|MKD · ${monthLabel}|"></small></div>
+<div class="metric"><span>Payments received</span><strong th:text="${#numbers.formatDecimal(paid,1,2)}"></strong><small>MKD · allocated to this month</small></div>
+<div class="metric"><span>Outstanding</span><strong th:text="${#numbers.formatDecimal(balance,1,2)}"></strong><small>MKD · remaining balance</small></div>
+</div>
+<section class="panel"><div class="section-heading"><h2 th:text="${monthLabel}"></h2><span class="badge" th:text="|${fees.size()} fee records|"></span></div>
+<p class="muted">Totals include entered fees only. Fees are not created automatically. <span th:text="|${unassigned} eligible player(s) have no fee entered for this month.|"></span></p>
+<div class="table-wrap"><table><thead><tr><th>Player</th><th>Generation</th><th>Due · MKD</th><th>Paid · MKD</th><th>Balance · MKD</th><th>Status</th><th></th></tr></thead><tbody>
+<tr th:each="f : ${fees}"><td><a th:href="@{/players/{id}(id=${f.player.id})}" th:text="${f.player.name}"></a></td><td th:text="${f.player.generation.name}"></td><td th:text="${#numbers.formatDecimal(f.amountDue,1,2)}"></td><td th:text="${#numbers.formatDecimal(f.amountPaid,1,2)}"></td><td th:text="${#numbers.formatDecimal(f.balance,1,2)}"></td><td><span class="badge" th:classappend="${f.balance.signum() > 0} ? 'danger'" th:text="${f.status}"></span></td><td><a th:href="@{/memberships/{id}(id=${f.id})}">Manage →</a></td></tr>
+<tr th:if="${fees.isEmpty()}"><td colspan="7" class="empty">No fees entered for this month. Add a monthly fee below to begin.</td></tr>
+</tbody></table></div></section>
+<section id="add-fee" class="panel"><h2>Add a monthly fee</h2><p>One record per player and month. Record the total paid so far, including partial payments.</p>
+<p th:if="${players.isEmpty()}" class="empty">Add players to a <a th:href="@{/generations}">generation</a> before creating membership fees.</p>
+<form th:unless="${players.isEmpty()}" class="stack" th:action="@{/memberships}" method="post">
+<div class="form-row"><label>Player<select name="playerId" required><option value="">Choose a player</option><option th:each="p : ${players}" th:value="${p.id}" th:text="|${p.name} · ${p.generation.name}|"></option></select></label><label>Fee month<input name="month" type="month" min="2000-01" max="2100-12" th:value="${month}" required></label></div>
+<div class="form-row"><label>Amount due · MKD<input name="due" type="number" min="0" max="9999999999.99" step="0.01" placeholder="e.g. 1500.00" required></label><label>Total paid · MKD<input name="paid" type="number" min="0" max="9999999999.99" step="0.01" value="0.00" required></label></div>
+<label>Last payment date <small>(required when paid is greater than zero)</small><input name="paidOn" type="date" th:max="${today}"></label>
+<label>Payment notes<textarea name="notes" maxlength="500" placeholder="Optional payment reference or note"></textarea></label>
+<button>Create monthly fee</button>
+</form></section>
+</main></body></html>

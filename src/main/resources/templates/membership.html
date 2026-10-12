@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Touchline · Membership payment</title><link rel="stylesheet" th:href="@{/app.css}"></head>
+<body><header th:replace="~{fragments :: header}"></header><nav th:replace="~{fragments :: navigation}"></nav>
+<main><section th:replace="~{fragments :: notifications}"></section>
+<a th:href="@{/memberships(month=${#temporals.format(fee.feeMonth,'yyyy-MM')})}">← Memberships</a>
+<div class="page-heading"><div><span class="eyebrow" th:text="${#temporals.format(fee.feeMonth,'MMMM yyyy')}"></span><h1 th:text="${fee.player.name}"></h1><p th:text="${fee.player.generation.name}"></p></div><span class="badge" th:text="${fee.status}"></span></div>
+<section class="panel"><h2>Edit monthly fee & payment</h2><p>Enter the total paid for this month, not just the latest installment. The player and month stay fixed. All amounts are in MKD.</p>
+<p><strong th:text="|Outstanding: ${#numbers.formatDecimal(fee.balance,1,2)} MKD|"></strong></p>
+<form class="stack" th:action="@{/memberships/{id}/edit(id=${fee.id})}" method="post">
+<input type="hidden" name="revision" th:value="${fee.revision}">
+<div class="form-row"><label>Amount due · MKD<input name="due" type="number" min="0" max="9999999999.99" step="0.01" th:value="${fee.amountDue}" required></label><label>Total paid · MKD<input name="paid" type="number" min="0" max="9999999999.99" step="0.01" th:value="${fee.amountPaid}" required></label></div>
+<label>Last payment date <small>(required when paid is greater than zero)</small><input name="paidOn" type="date" th:value="${fee.paidOn}" th:max="${today}" th:min="${fee.player.joinedOn}"></label>
+<label>Payment notes<textarea name="notes" maxlength="500" th:text="${fee.notes}"></textarea></label>
+<button>Save membership payment</button>
+</form></section>
+<section class="panel danger-zone"><details><summary>Delete membership record</summary><p>This permanently removes this monthly fee and its recorded payment total.</p><form class="stack" th:action="@{/memberships/{id}/delete(id=${fee.id})}" method="post"><input type="hidden" name="revision" th:value="${fee.revision}"><label class="confirm"><input name="confirmed" type="checkbox" value="true" required> I confirm deletion of this fee and payment record.</label><button class="destructive">Delete membership record</button></form></details></section>
+</main></body></html>

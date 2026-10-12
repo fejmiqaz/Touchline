@@ -9,10 +9,11 @@
 <body>
 <header th:replace="~{fragments :: header}">
 </header>
+<nav th:replace="~{fragments :: navigation}"></nav>
 <main>
 <section th:replace="~{fragments :: notifications}">
 </section>
-<a th:href="@{/}">← Coach dashboard</a>
+<a th:href="@{/generations}">← Generations</a>
 <div class="page-heading">
 <div>
 <span class="eyebrow" th:text="|BORN ${generation.birthYear}|">
@@ -51,7 +52,7 @@
 </section>
 <section class="panel danger-zone">
 <details><summary>Delete generation</summary>
-<p>This permanently deletes this generation, all its players, training sessions and attendance records.</p>
+<p>This permanently deletes this generation, all its players, training sessions, attendance and membership records.</p>
 <form class="stack" th:action="@{/generations/{id}/delete(id=${generation.id})}" method="post">
 <label class="confirm"><input type="checkbox" name="confirmed" value="true" required> I confirm deletion of this generation and all its records.</label>
 <button class="destructive">Delete generation</button>
@@ -60,4 +61,3 @@
 </main>
 </body>
 </html>
-

@@ -12,6 +12,15 @@
 </form>
 </div>
 </header>
+<nav th:fragment="navigation" class="workspace-nav" aria-label="Workspace pages">
+<div class="nav-inner">
+<a th:href="@{/}" th:classappend="${activePage == 'overview'} ? 'active'" th:attr="aria-current=${activePage == 'overview' ? 'page' : null}">Overview</a>
+<a th:href="@{/training}" th:classappend="${activePage == 'training'} ? 'active'" th:attr="aria-current=${activePage == 'training' ? 'page' : null}">Training</a>
+<a th:href="@{/generations}" th:classappend="${activePage == 'generations'} ? 'active'" th:attr="aria-current=${activePage == 'generations' ? 'page' : null}">Generations</a>
+<a th:href="@{/attendance}" th:classappend="${activePage == 'attendance'} ? 'active'" th:attr="aria-current=${activePage == 'attendance' ? 'page' : null}">Attendance</a>
+<a th:href="@{/memberships}" th:classappend="${activePage == 'memberships'} ? 'active'" th:attr="aria-current=${activePage == 'memberships' ? 'page' : null}">Memberships</a>
+</div>
+</nav>
 <section th:fragment="notifications" class="notifications" aria-label="Notifications">
  <p class="success" role="status" th:if="${success}" th:text="${success}">
 </p>

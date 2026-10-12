@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Touchline · Generations</title><link rel="stylesheet" th:href="@{/app.css}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<nav th:replace="~{fragments :: navigation}"></nav>
+<main><section th:replace="~{fragments :: notifications}"></section>
+<div class="page-heading"><div><span class="eyebrow">YOUR SQUADS</span><h1>Generations.</h1><p>Build your rosters and keep every player history together.</p></div></div><section class="panel">
+<h2>Your generations</h2>
+<p class="muted">Keep each generation’s roster together over time.</p>
+<div class="generation-list">
+<a th:each="generation : ${generations}" th:href="@{/generations/{id}(id=${generation.id})}">
+<b th:text="${generation.name}">
+</b>
+<span th:text="|Born ${generation.birthYear} →|">
+</span>
+</a>
+</div>
+<details>
+<summary>+ Create generation</summary>
+<form th:action="@{/generations}" method="post" class="stack">
+<label>Generation name<input name="name" placeholder="e.g. U15 · Academy" maxlength="100" required>
+</label>
+<label>Birth year<input name="birthYear" type="number" min="1900" th:max="${today.year}" placeholder="2012" required>
+</label>
+<button>Create generation</button>
+</form>
+</details>
+</section>
+
+</main><footer>TOUCHLINE · Show up. Put the work in.</footer></body></html>
